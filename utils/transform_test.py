@@ -28,7 +28,7 @@ def set_phases(d, q, theta, pwm_max):
 if __name__ == "__main__":
 
     pwm_max = 100.0
-    amp     = pwm_max*0.8
+    amp     = pwm_max*1.0
     phase   = 0*numpy.pi/180.0
     d = amp*numpy.cos(phase)
     q = amp*numpy.sin(phase)
