@@ -28,6 +28,7 @@ MANIFEST
 *.elf
 *.bin
 *.hex
+*.asm
 
 #filesystem
 .DS_Store
