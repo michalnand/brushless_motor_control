@@ -1,6 +1,9 @@
 #include "device.h"
 #include <gpio.h>
 
+#include <i2c.h>
+#include <as5600.h>
+#include <motor.h>
 
 void SetPLL()
 {
@@ -28,7 +31,7 @@ void delay_loops(uint32_t loops)
 
 
 
-
+ 
 int main(void)
 {
   //cpu clock init
@@ -38,6 +41,15 @@ int main(void)
   SetPLL();  
 
   Gpio<TGPIOB, 3, GPIO_MODE_OUT> led_pin;
+
+  TI2C<TGPIOB, 7, 6>  i2c;
+  AS5600              encoder;
+
+  encoder.init(&i2c);
+
+
+  Motor motor;
+
 
   while (1)
   {

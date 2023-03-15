@@ -30,7 +30,7 @@ template <unsigned char port_name, unsigned char sda_pin, unsigned char scl_pin,
   public:
     TI2C()
     {
-
+      this->init();
     }
 
     virtual ~TI2C()
