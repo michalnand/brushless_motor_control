@@ -64,11 +64,6 @@ void Motor::set_clarke(int32_t alpha, int32_t beta)
 
 void Motor::set_phases(int32_t a, int32_t b, int32_t c)
 {
-    int32_t a_pwm = a;
-    int32_t b_pwm = b;
-    int32_t c_pwm = c;
-
-    
     //transform into space-vector modulation, to achieve full voltage range
     int32_t min_val = min3(a, b, c);
     int32_t max_val = max3(a, b, c); 
@@ -76,13 +71,11 @@ void Motor::set_phases(int32_t a, int32_t b, int32_t c)
     int32_t com_val = (min_val + max_val)/2; 
 
     //normalise into 0..MOTOR_CONTROL_MAX
-    a_pwm = ((a - com_val)*SQRT3INV)/256 + MOTOR_CONTROL_MAX/2;
-    b_pwm = ((b - com_val)*SQRT3INV)/256 + MOTOR_CONTROL_MAX/2;
-    c_pwm = ((c - com_val)*SQRT3INV)/256 + MOTOR_CONTROL_MAX/2;
+    int32_t a_pwm = ((a - com_val)*SQRT3INV)/256 + MOTOR_CONTROL_MAX/2;
+    int32_t b_pwm = ((b - com_val)*SQRT3INV)/256 + MOTOR_CONTROL_MAX/2;
+    int32_t c_pwm = ((c - com_val)*SQRT3INV)/256 + MOTOR_CONTROL_MAX/2;
     
      
-    
-
     a_pwm = clamp((a_pwm*PWM_PERIOD)/MOTOR_CONTROL_MAX, 0, PWM_PERIOD);
     b_pwm = clamp((b_pwm*PWM_PERIOD)/MOTOR_CONTROL_MAX, 0, PWM_PERIOD);
     c_pwm = clamp((c_pwm*PWM_PERIOD)/MOTOR_CONTROL_MAX, 0, PWM_PERIOD);
