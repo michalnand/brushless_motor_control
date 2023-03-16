@@ -52,13 +52,15 @@ int AS5600::init(I2C_Interface *i2c_)
     return 0;
 }
 
-void AS5600::read()
+int32_t AS5600::read()
 {
     int32_t angle;
     angle = (uint16_t)i2c->read_reg(I2C_ADDRESS, RAW_ANGLE_H_ADR) << 8;
     angle|= (uint16_t)i2c->read_reg(I2C_ADDRESS, RAW_ANGLE_L_ADR);
 
     this->angle = angle - this->zero_angle;
+
+    return this->angle;
 }
 
 void AS5600::set_zero()

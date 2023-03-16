@@ -78,4 +78,4 @@ CLEAN_FILES+= $(CXX_OBJS)
 CLEAN_FILES+= $(OUTPUT)*
 
 clean:
-	rm $(CLEAN_FILES) -f
+	rm -f $(CLEAN_FILES)

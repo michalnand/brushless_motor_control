@@ -5,6 +5,11 @@
 #include <as5600.h>
 #include <motor.h>
 
+#include <gonio.h>
+
+#include <test.h>
+#include <terminal.h>
+
 void SetPLL()
 {
   RCC_PLLConfig(RCC_PLLSource_HSI, RCC_PLLMul_6);
@@ -14,9 +19,10 @@ void SetPLL()
   while (RCC_GetFlagStatus(RCC_FLAG_PLLRDY) != SET)
   { 
     __asm("nop");
-  }
+  } 
 
-  RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);  // Select the PLL as clock source.
+  // Select the PLL as clock source.
+  RCC_SYSCLKConfig(RCC_SYSCLKSource_PLLCLK);  
   SystemCoreClockUpdate();
 }
 
@@ -34,31 +40,42 @@ void delay_loops(uint32_t loops)
  
 int main(void)
 {
-  //cpu clock init
-  SystemInit();
+    //cpu clock init
+    SystemInit();
 
-  // setup PLL, 6*HSI = 48MHz
-  SetPLL();  
+    // setup PLL, 6*HSI = 48MHz
+    SetPLL();  
 
-  Gpio<TGPIOB, 3, GPIO_MODE_OUT> led_pin;
+    /*
+    Terminal terminal;
+    terminal.init(115200, USART2);
+    terminal << "terminal init done\n";
+  
+    TI2C<TGPIOB, 7, 6>  i2c;
+    AS5600              encoder;
+    encoder.init(&i2c);
 
-  TI2C<TGPIOB, 7, 6>  i2c;
-  AS5600              encoder;
-
-  encoder.init(&i2c);
-
-
-  Motor motor;
-
-
-  while (1)
-  {
-    led_pin = 1;
-    delay_loops(1000000);
     
-    led_pin = 0;
-    delay_loops(1000000);
-  }
+    terminal << "device init done\n";
 
-  return 0;
+    while(1)
+    {
+      int32_t angle = encoder.read();
+
+      terminal << "angle = " << angle << "\n";
+
+      delay_loops(100000);
+    }
+    */
+
+  
+    Motor motor;
+    motor.init();
+
+    //test_pwm_waveforms(motor);
+    test_torque(motor);
+    
+
+
+    return 0;
 } 

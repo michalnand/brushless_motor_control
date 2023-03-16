@@ -12,7 +12,7 @@ class AS5600
 
         int init(I2C_Interface *i2c_);
 
-        void read();
+        int32_t read();
         void set_zero();
 
     public:

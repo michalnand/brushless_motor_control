@@ -1,37 +1,43 @@
 import numpy
 import matplotlib.pyplot as plt
 
+def set_torque(torque, phase):
+    q = torque*numpy.cos(phase)
+    d = torque*numpy.sin(phase)
 
-def set_phases(d, q, theta, pwm_max):
+    return d, q
+
+
+def set_phases(d, q, theta, control_max = 1):
     #inverse Park transform
     alpha = d*numpy.cos(theta) - q*numpy.sin(theta)
     beta  = d*numpy.sin(theta) + q*numpy.cos(theta)
-
+ 
     #inverse Clarke transform
-    ia = alpha 
-    ib = -(alpha/2) + beta*numpy.sqrt(3)/2.0
-    ic = -(alpha/2) - beta*numpy.sqrt(3)/2.0
+    a = alpha 
+    b = -(alpha/2) + beta*numpy.sqrt(3)/2.0
+    c = -(alpha/2) - beta*numpy.sqrt(3)/2.0
 
     #transform into space-vector modulation, to achieve full voltage range
-    min_val = min([ia, ib, ic])
-    max_val = max([ia, ib, ic])
+    min_val = min([a, b, c])
+    max_val = max([a, b, c])
 
     com_val = (min_val + max_val)/2.0
 
-    #normalise into 0..pwm_max
-    ia_norm = ( (ia - com_val)/numpy.sqrt(3) + pwm_max/2 )
-    ib_norm = ( (ib - com_val)/numpy.sqrt(3) + pwm_max/2 )
-    ic_norm = ( (ic - com_val)/numpy.sqrt(3) + pwm_max/2 )
+    #normalise into 0..control_max
+    a_norm = ( (a - com_val)/numpy.sqrt(3) + control_max/2 )
+    b_norm = ( (b - com_val)/numpy.sqrt(3) + control_max/2 )
+    c_norm = ( (c - com_val)/numpy.sqrt(3) + control_max/2 )
 
-    return alpha, beta, ia, ib, ic, ia_norm, ib_norm, ic_norm
+    return alpha, beta, a, b, c, a_norm, b_norm, c_norm
 
 if __name__ == "__main__":
 
-    pwm_max = 100.0
-    amp     = pwm_max*1.0
-    phase   = 0*numpy.pi/180.0
-    d = amp*numpy.cos(phase)
-    q = amp*numpy.sin(phase)
+    control_max = 100.0
+    phase       = 100*numpy.pi/180.0
+    torque      = 100
+
+
 
     steps = 1024
 
@@ -40,32 +46,33 @@ if __name__ == "__main__":
     alpha_res      = []
     beta_res      = []
 
-    ia_res      = []
-    ib_res      = []
-    ic_res      = []
+    a_res      = []
+    b_res      = []
+    c_res      = []
 
-    ia_norm_res      = []
-    ib_norm_res      = []
-    ic_norm_res      = []
+    a_norm_res      = []
+    b_norm_res      = []
+    c_norm_res      = []
 
     for n in range(steps):
         theta = (((2*n)%steps)/steps)*2.0*numpy.pi
         
+        d, q = set_torque(torque, phase)
 
-        alpha, beta, ia, ib, ic, ia_norm, ib_norm, ic_norm = set_phases(d, q, theta, pwm_max)
+        alpha, beta, a, b, c, a_norm, b_norm, c_norm = set_phases(d, q, theta, control_max)
 
         theta_res.append(theta*180.0/numpy.pi)
 
         alpha_res.append(alpha)
         beta_res.append(beta)
 
-        ia_res.append(ia)
-        ib_res.append(ib)
-        ic_res.append(ic)
+        a_res.append(a)
+        b_res.append(b)
+        c_res.append(c)
 
-        ia_norm_res.append(ia_norm)
-        ib_norm_res.append(ib_norm)
-        ic_norm_res.append(ic_norm)
+        a_norm_res.append(a_norm)
+        b_norm_res.append(b_norm)
+        c_norm_res.append(c_norm)
 
     plt.clf()
     fig, axs = plt.subplots(4, 1, figsize=(8, 8))
@@ -84,18 +91,18 @@ if __name__ == "__main__":
     axs[1].grid()
 
 
-    axs[2].plot(ia_res, label="Ia", color="red")
-    axs[2].plot(ib_res, label="Ib", color="green")
-    axs[2].plot(ic_res, label="Ic", color="blue")
+    axs[2].plot(a_res, label="a", color="red")
+    axs[2].plot(b_res, label="b", color="green")
+    axs[2].plot(c_res, label="c", color="blue")
     axs[2].set_xlabel("step")
     axs[2].set_ylabel("current")
     axs[2].legend()
     axs[2].grid()
 
 
-    axs[3].plot(ia_norm_res, label="PWM a", color="red")
-    axs[3].plot(ib_norm_res, label="PWM b", color="green")
-    axs[3].plot(ic_norm_res, label="PWM c", color="blue")
+    axs[3].plot(a_norm_res, label="PWM a", color="red")
+    axs[3].plot(b_norm_res, label="PWM b", color="green")
+    axs[3].plot(c_norm_res, label="PWM c", color="blue")
     axs[3].set_xlabel("step")
     axs[3].set_ylabel("pwm normalised")
     axs[3].legend()
