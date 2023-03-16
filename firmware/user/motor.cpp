@@ -7,8 +7,8 @@
 
 
 //helping stuff
-#define SQRT3       ((int32_t)443)      // sqrt(3)      = 443/256
-#define SQRT3INV    ((int32_t)148)      // 1/sqrt(3)    = 148/256
+#define SQRT3       ((int32_t)1773)      // sqrt(3)     = 1773/1024
+#define SQRT3INV    ((int32_t)591)       // 1/sqrt(3)   = 591/1024
 
 #define max2(x,y) (((x) >= (y)) ? (x) : (y))
 #define min2(x,y) (((x) <= (y)) ? (x) : (y))
@@ -38,7 +38,7 @@ void Motor::set_torque(int32_t torque, uint32_t phase, uint32_t rotor_angle)
     int32_t q = (torque*cos_tab(phase))/SINE_TABLE_MAX;
     int32_t d = (torque*sin_tab(phase))/SINE_TABLE_MAX;
 
-    this->set_park(d, q, rotor_angle);
+    this->set_park(d, q, rotor_angle*MOTOR_POLES);
 }
 
  
@@ -55,8 +55,8 @@ void Motor::set_clarke(int32_t alpha, int32_t beta)
 {
     //inverse Clarke transform
     int32_t a = alpha;
-    int32_t b = -(alpha/2) + (SQRT3*beta)/(2*256);
-    int32_t c = -(alpha/2) - (SQRT3*beta)/(2*256);
+    int32_t b = -(alpha/2) + (SQRT3*beta)/(2*1024);
+    int32_t c = -(alpha/2) - (SQRT3*beta)/(2*1024);
 
 
     this->set_phases(a, b, c); 
@@ -68,12 +68,12 @@ void Motor::set_phases(int32_t a, int32_t b, int32_t c)
     int32_t min_val = min3(a, b, c);
     int32_t max_val = max3(a, b, c); 
 
-    int32_t com_val = (min_val + max_val)/2; 
+    int32_t com_val = (min_val + max_val)/2;  
 
     //normalise into 0..MOTOR_CONTROL_MAX
-    int32_t a_pwm = ((a - com_val)*SQRT3INV)/256 + MOTOR_CONTROL_MAX/2;
-    int32_t b_pwm = ((b - com_val)*SQRT3INV)/256 + MOTOR_CONTROL_MAX/2;
-    int32_t c_pwm = ((c - com_val)*SQRT3INV)/256 + MOTOR_CONTROL_MAX/2;
+    int32_t a_pwm = ((a - com_val)*SQRT3INV)/1024 + MOTOR_CONTROL_MAX/2;
+    int32_t b_pwm = ((b - com_val)*SQRT3INV)/1024 + MOTOR_CONTROL_MAX/2;
+    int32_t c_pwm = ((c - com_val)*SQRT3INV)/1024 + MOTOR_CONTROL_MAX/2;
     
      
     a_pwm = clamp((a_pwm*PWM_PERIOD)/MOTOR_CONTROL_MAX, 0, PWM_PERIOD);

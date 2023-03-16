@@ -42,8 +42,8 @@ class Motor
             main motor control
 
             torque t in range 0..MOTOR_CONTROL_MAX
-            phase       : TODO
-            rotor_angle : measured rotor angle
+            phase       : TODO, 0..SINE_TABLE_SIZE
+            rotor_angle : measured rotor angle, 0..SINE_TABLE_SIZE
         */
         void set_torque(int32_t torque, uint32_t phase, uint32_t rotor_angle);
 
@@ -59,7 +59,7 @@ class Motor
         //transform into space-vector modulation, to achieve full voltage range
         void set_phases(int32_t a, int32_t b, int32_t c);
 
-    public:
+    private:
         void    hw_init();
         void    set_pwm(uint32_t a_pwm, uint32_t b_pwm, uint32_t c_pwm);
         int32_t clamp(int32_t value, int32_t min, int32_t max);

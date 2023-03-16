@@ -1,5 +1,5 @@
 #include "as5600.h"
-
+#include <device.h>
 
 #define I2C_ADDRESS ((unsigned char)0x36<<1)
 
@@ -15,8 +15,8 @@
 
 #define RAW_ANGLE_H_ADR  ((unsigned char)0x0C)
 #define RAW_ANGLE_L_ADR  ((unsigned char)0x0D)
-#define ANGLE_ANGLE_H_ADR  ((unsigned char)0x0E)
-#define ANGLE_ANGLE_L_ADR  ((unsigned char)0x0F)
+#define ANGLE_H_ADR      ((unsigned char)0x0E)
+#define ANGLE_L_ADR      ((unsigned char)0x0F)
 
 #define STATUS_ADR  ((unsigned char)0x0B)
 #define AGC_ADR     ((unsigned char)0x1A)
@@ -37,33 +37,82 @@ AS5600::~AS5600()
 int AS5600::init(I2C_Interface *i2c_)
 {
     this->i2c           = i2c_;
-    this->angle         = 0;
-    this->zero_angle    = 0;
+    this->angle         = 0; 
 
+    //check if device responds using ACK
+    unsigned char ack = i2c->check(I2C_ADDRESS);
+    if (ack == 0)
+    {
+        return -1;
+    }
+
+      
     //power on
-    //hysteresis off
+    //hysteresis 1 LSB
     //slow filter only
-    i2c->write_reg(I2C_ADDRESS, CONF_L_ADR, 0x00); 
-    i2c->write_reg(I2C_ADDRESS, CONF_H_ADR, (1<<0)|(1<<1)); 
+    i2c->write_reg(I2C_ADDRESS, CONF_L_ADR, (1<<2));
+    i2c->write_reg(I2C_ADDRESS, CONF_H_ADR, (1<<0)|(1<<1));
+    
 
-    this->read();
-    this->set_zero();
+    this->position          = 0;
+    this->position_prev     = 0;
+    this->angular_velocity  = 0;
+    this->prev_value        = 0;
+
+    //set zero angle
+    set_zero();
+
+    this->read_angle();
+    this->update();
     
     return 0;
 }
 
-int32_t AS5600::read()
+int32_t AS5600::read_angle()
 {
-    int32_t angle;
-    angle = (uint16_t)i2c->read_reg(I2C_ADDRESS, RAW_ANGLE_H_ADR) << 8;
-    angle|= (uint16_t)i2c->read_reg(I2C_ADDRESS, RAW_ANGLE_L_ADR);
-
-    this->angle = angle - this->zero_angle;
-
+    this->angle = i2c->read_reg_16bit(I2C_ADDRESS, ANGLE_H_ADR)&0x0fff;
     return this->angle;
 }
 
+void AS5600::update(int32_t dt_us)
+{
+    __disable_irq();
+    int16_t value = i2c->read_reg_16bit(I2C_ADDRESS, RAW_ANGLE_H_ADR)&0x0fff;
+    __enable_irq();
+
+    this->position_prev = this->position;
+
+    //  whole rotation CW?
+    //  less than half a circle
+    if ((this->prev_value > 2048) && ( value < (this->prev_value - 2048)))
+    {
+        this->position = this->position + 4096 - this->prev_value + value;
+    }
+  
+    //  whole rotation CCW?
+    //  less than half a circle
+    else if ((value > 2048) && ( this->prev_value < (value - 2048)))
+    {
+        this->position = this->position - 4096 - this->prev_value + value;
+    }
+    else 
+    {
+        this->position = this->position - this->prev_value + value;
+    }
+
+     
+    this->prev_value = value;
+
+    this->angular_velocity = ((this->position - this->position_prev)*1000000)/dt_us;
+}
+
+
 void AS5600::set_zero()
 {
-    this->zero_angle = this->angle;
+    //set zero angle
+    uint8_t raw_h = i2c->read_reg(I2C_ADDRESS, RAW_ANGLE_H_ADR);
+    uint8_t raw_l = i2c->read_reg(I2C_ADDRESS, RAW_ANGLE_L_ADR);
+
+    i2c->write_reg(I2C_ADDRESS, ZPOS_H_ADR, raw_h); 
+    i2c->write_reg(I2C_ADDRESS, ZPOS_L_ADR, raw_l); 
 }
