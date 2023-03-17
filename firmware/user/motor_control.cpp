@@ -7,8 +7,8 @@ MotorControl::MotorControl(AS5600 *encoder, Motor *motor)
 
     this->torque = 0;
 
-    this->lqr_velocity.init(1.0, 1.0, 0.0);
-    this->lqr_position.init(1.0, 1.0, 1.0);
+    this->lqr_velocity.init(1.0, 1.0, 0.0, 1.0);
+    this->lqr_position.init(1.0, 1.0, 1.0, 1.0);
 }
 
 MotorControl::~MotorControl()
