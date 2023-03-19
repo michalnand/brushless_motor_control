@@ -1,7 +1,7 @@
 {
     "Header": {
         "Comment": "All values are metric (mm)",
-        "CreationDate": "2023-03-13T14:45:41Z",
+        "CreationDate": "2023-03-18T17:05:16Z",
         "GenerationSoftware": {
             "Application": "EAGLE",
             "Vendor": "Autodesk",
@@ -13,7 +13,7 @@
         "BoardThickness": 1.57,
         "LayerNumber": 2,
         "Name": {
-            "ProjectId": "esc_control"
+            "ProjectId": "esc_control_2"
         },
         "Owner": "Michal Nand <michal.nand@gmail.com>",
         "Size": {

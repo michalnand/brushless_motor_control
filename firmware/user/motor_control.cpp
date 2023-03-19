@@ -20,9 +20,38 @@ MotorControl::~MotorControl()
     most inner control loop, call it as fast as possible (1kHz..2kHz)
 */
 void MotorControl::callback_torque()
-{
-    this->motor->set_torque(this->torque, 0, this->encoder->read_angle());
-}
+{   
+    /*
+    //measure current
+    float current  = adc_read()/r;
+
+    //convert desired torque to current (T = I*Kt = I/Kv) 
+    float error = this->torque*Kv - current;
+    
+    //PI controller
+    error_sum   = error_sum + error*dt;
+
+    u = kp*error + ki*error_sum;
+
+    //apply voltage
+    this->motor->set_torque(u, 0, this->encoder->read_angle());
+    */
+
+    /*
+    //measure current
+    int32_t current = adc_read()/r;
+
+    //convert desired torque to current (T = I*Kt = I/Kv) 
+    int32_t error   = this->torque*Kv - current
+    
+    //PI controller
+    error_sum       = error_sum + error*dt;
+    int32_t u       = kp*error + ki*error_sum;
+
+    //apply voltage
+    this->motor->set_torque(u, 0, this->encoder->read_angle());
+    */
+}   
 
 /*
     state space controller loop, call it in aprox. 200Hz

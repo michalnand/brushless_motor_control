@@ -20,11 +20,18 @@
 
 
 #define MOTOR_CONTROL_MAX       ((int32_t)1024)
-#define MOTOR_POLES             ((int32_t)2)
+#define MOTOR_POLES             ((int32_t)12)
+#define MOTOR_KV                ((int32_t)250)
+#define MOTOR_CURRENT_MAX       ((int32_t)5)
+
+
  
 //20kHz PWM, 48MHz is timer 2 clock source
 #define PWM_FREQUENCY           ((uint32_t)20000)
 #define PWM_PERIOD              ((uint32_t)48000000/PWM_FREQUENCY - 1)
+
+//maximal motor torque x 4096
+#define MOTOR_TORQUE_MAX        ((4096*MOTOR_CURRENT_MAX)/MOTOR_KV)
 
 
 #include <stdint.h>

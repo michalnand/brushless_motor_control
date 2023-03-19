@@ -22,6 +22,7 @@ share/python-wheels/
 *.egg
 MANIFEST
 
+.ipynb_checkpoints/
 
 #binary files 
 *.o

@@ -52,6 +52,6 @@ void test_torque(Motor &motor)
 
       rotor_angle = (rotor_angle+1)%SINE_TABLE_SIZE;
 
-      _delay_loops(4000);
+      _delay_loops(2000);
     }
 }
