@@ -20,21 +20,24 @@
 
 
 #define MOTOR_CONTROL_MAX       ((int32_t)1024)
-#define MOTOR_POLES             ((int32_t)12)
+
+#define MOTOR_POLES             ((int32_t)14)
 #define MOTOR_KV                ((int32_t)250)
 #define MOTOR_CURRENT_MAX       ((int32_t)5)
 
 
- 
+  
 //20kHz PWM, 48MHz is timer 2 clock source
 #define PWM_FREQUENCY           ((uint32_t)20000)
-#define PWM_PERIOD              ((uint32_t)48000000/PWM_FREQUENCY - 1)
+#define PWM_PERIOD              ((uint32_t)24000000/PWM_FREQUENCY - 1)
 
 //maximal motor torque x 4096
 #define MOTOR_TORQUE_MAX        ((4096*MOTOR_CURRENT_MAX)/MOTOR_KV)
 
 
 #include <stdint.h>
+#include <as5600.h>
+#include <pid.h>
 
 class Motor
 {
@@ -45,12 +48,16 @@ class Motor
 
         void init();
 
+        void hold();
+        void release();
+
+
         /*
             main motor control
 
             torque t in range 0..MOTOR_CONTROL_MAX
             phase       : TODO, 0..SINE_TABLE_SIZE
-            rotor_angle : measured rotor angle, 0..SINE_TABLE_SIZE
+            rotor_angle : measured rotor angle, 0..4096 (as from encoder)
         */
         void set_torque(int32_t torque, uint32_t phase, uint32_t rotor_angle);
 

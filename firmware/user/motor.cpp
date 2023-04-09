@@ -4,8 +4,6 @@
 #include <device.h>
 
 
-
-
 //helping stuff
 #define SQRT3       ((int32_t)1773)      // sqrt(3)     = 1773/1024
 #define SQRT3INV    ((int32_t)591)       // 1/sqrt(3)   = 591/1024
@@ -19,7 +17,7 @@
 
 Motor::Motor()
 {
-    this->init();
+    
 }
 
 Motor::~Motor()
@@ -30,15 +28,40 @@ Motor::~Motor()
 void Motor::init()
 {
     this->hw_init();
-    this->set_torque(0, 0, 0);
 }
+
+
+void Motor::hold()
+{
+    this->set_torque(500, 0, 0);
+
+    uint32_t loops = 4000000;
+    while (loops--) 
+    {
+        __asm("nop"); 
+    } 
+}
+    
+
+void Motor::release()
+{
+    this->set_torque(0, 0, 0);
+
+    uint32_t loops = 4000000;
+    while (loops--) 
+    {
+        __asm("nop"); 
+    } 
+}
+    
+
 
 void Motor::set_torque(int32_t torque, uint32_t phase, uint32_t rotor_angle)
 {
     int32_t q = (torque*cos_tab(phase))/SINE_TABLE_MAX;
     int32_t d = (torque*sin_tab(phase))/SINE_TABLE_MAX;
 
-    this->set_park(d, q, rotor_angle*MOTOR_POLES);
+    this->set_park(d, q, (rotor_angle*MOTOR_POLES)/(2*4));
 }
 
  
@@ -114,20 +137,16 @@ void Motor::hw_init()
     
 
 
-    //enable controll pins
-    //ENA : PB3, TIM2_CH2
-    //ENB : PB4, TIM3_CH1
-    //ENC : PB5, TIM3_CH2
-
-    RCC->AHBENR|= RCC_AHBENR_GPIOBEN;
+    //enable controll pin, PA5
+    RCC->AHBENR|= RCC_AHBENR_GPIOAEN;
     
     //init pins
-    GPIO_InitStruct.GPIO_Pin    = GPIO_Pin_3 | GPIO_Pin_4 | GPIO_Pin_5;
+    GPIO_InitStruct.GPIO_Pin    = GPIO_Pin_5;
     GPIO_InitStruct.GPIO_OType  = GPIO_OType_PP;
     GPIO_InitStruct.GPIO_PuPd   = GPIO_PuPd_NOPULL;
-    GPIO_InitStruct.GPIO_Mode   = GPIO_Mode_AF;
+    GPIO_InitStruct.GPIO_Mode   = GPIO_Mode_OUT;
     GPIO_InitStruct.GPIO_Speed  = GPIO_Speed_Level_1;
-    GPIO_Init(GPIOB, &GPIO_InitStruct);
+    GPIO_Init(GPIOA, &GPIO_InitStruct);
 
     
 
@@ -154,12 +173,11 @@ void Motor::hw_init()
     TIM_TimeBaseInit(TIM2, &TIM_BaseStruct);
     TIM_Cmd(TIM2, ENABLE);
 
-
     //stop motor    
     this->set_pwm(0, 0, 0);
 
     //set enable to high, for all phases
-    GPIOB->ODR |= (1<<3)|(1<<4)|(1<<5); 
+    GPIOA->ODR |= (1<<5); 
 }
 
 
@@ -175,12 +193,12 @@ void Motor::set_pwm(uint32_t a_pwm, uint32_t b_pwm, uint32_t c_pwm)
     TIM_OCStruct.TIM_OCPolarity     = TIM_OCPolarity_Low;
 
     //HSA pwm, PA3, TIM2_CH4
-    TIM_OCStruct.TIM_Pulse = a_pwm;
+    TIM_OCStruct.TIM_Pulse = b_pwm;
     TIM_OC4Init(TIM2, &TIM_OCStruct);
     TIM_OC4PreloadConfig(TIM2, TIM_OCPreload_Enable);
 
     //HSB pwm, PA2, TIM2_CH3
-    TIM_OCStruct.TIM_Pulse = b_pwm;
+    TIM_OCStruct.TIM_Pulse = a_pwm;
     TIM_OC3Init(TIM2, &TIM_OCStruct);
     TIM_OC3PreloadConfig(TIM2, TIM_OCPreload_Enable);
 

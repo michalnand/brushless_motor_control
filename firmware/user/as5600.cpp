@@ -64,6 +64,12 @@ int AS5600::init(I2C_Interface *i2c_)
 
     this->read_angle();
     this->update();
+
+
+    this->position          = this->angle;
+    this->position_prev     = this->angle;
+    this->angular_velocity  = 0;
+    this->prev_value        = 0;
     
     return 0;
 }
@@ -76,10 +82,8 @@ int32_t AS5600::read_angle()
 
 void AS5600::update(int32_t dt_us)
 {
-    __disable_irq();
     int16_t value = i2c->read_reg_16bit(I2C_ADDRESS, RAW_ANGLE_H_ADR)&0x0fff;
-    __enable_irq();
-
+ 
     this->position_prev = this->position;
 
     //  whole rotation CW?
@@ -87,7 +91,7 @@ void AS5600::update(int32_t dt_us)
     if ((this->prev_value > 2048) && ( value < (this->prev_value - 2048)))
     {
         this->position = this->position + 4096 - this->prev_value + value;
-    }
+    } 
   
     //  whole rotation CCW?
     //  less than half a circle

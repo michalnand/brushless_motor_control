@@ -1,6 +1,7 @@
 LIBS_EMBEDDED_PATH = libs
 USER_PATH		   = user
 
+DEVICE_PATH			= $(LIBS_EMBEDDED_PATH)/device/
 STD_PERIPH_PATH 	= $(LIBS_EMBEDDED_PATH)/stm32f0/STM32F0xx_StdPeriph_Driver/
 STM_LIBS_PATH		= $(LIBS_EMBEDDED_PATH)/stm32f0/Device/ST/STM32F0xx/
 CMSIS_LIBS_PATH		= $(LIBS_EMBEDDED_PATH)/stm32f0/CMSIS/
@@ -12,13 +13,14 @@ OUTPUT	 	=bin/build
 
 #TARGET 	= -mcpu=cortex-m0 -mthumb -DSTM32F051 -DUSE_STDPERIPH_DRIVER
 TARGET 		= -mcpu=cortex-m0 -mthumb -DSTM32F042 -DUSE_STDPERIPH_DRIVER
-LDSCRIPT 	= ./device/ldscript.ld
+LDSCRIPT 	= ./libs/device/ldscript.ld
 
 INC+= -I $(STD_PERIPH_PATH)/inc/
 
 
 INC+= -I $(MIDDLEWARE_PATH)
 INC+= -I $(STD_PERIPH_PATH)
+INC+= -I $(DEVICE_PATH)
 INC+= -I $(USER_PATH)
 INC+= -I $(STM_LIBS_PATH)/Include
 INC+= -I $(CMSIS_LIBS_PATH)/Include
@@ -31,7 +33,7 @@ INC+= -I .
 CXX_SRCS = $(shell find $(USER_PATH) -name '*.cpp')
 CXX_SRCS+= $(shell find $(MIDDLEWARE_PATH) -name '*.cpp')
 
-C_SRCS = $(shell find  ./device -name '*.c')
+C_SRCS = $(shell find  ./libs/device -name '*.c')
 C_SRCS+= $(shell find  $(STD_PERIPH_PATH)/src -name '*.c')
 
 

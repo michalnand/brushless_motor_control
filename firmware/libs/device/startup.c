@@ -16,10 +16,7 @@ extern int main(void);
 // Default interrupt handler
 void __attribute__((interrupt("IRQ"))) Default_Handler()
 {
-    while (1)
-    {
-
-    }
+    
 }
 
 void Reset_Handler() __attribute__((naked, aligned(2)));

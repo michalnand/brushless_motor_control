@@ -1,14 +1,56 @@
 #include <motor_control.h>
+#include <gonio.h>
 
-MotorControl::MotorControl(AS5600 *encoder, Motor *motor)
+
+//void TIM1_BRK_UP_TRG_COM_IRQHandler()   __attribute__ ((weak, alias("Default_Handler")));
+//void TIM1_CC_IRQHandler()               __attribute__ ((weak, alias("Default_Handler")));
+
+template<class DType>
+DType _abs(DType v)
 {
-    this->encoder   = encoder;
-    this->motor     = motor;
+    if (v < 0)
+    {
+        v = -v;
+    }
 
-    this->torque = 0;
+    return v;
+}
+ 
+template<class DType>
+DType _sgn(DType v)
+{
+    if (v > 0)
+    {
+        return 1;
+    }
+    if (v < 0)
+    {
+        return - 1;
+    }
+    
+    return 0;
+}
 
-    this->lqr_velocity.init(1.0, 1.0, 0.0, 1.0);
-    this->lqr_position.init(1.0, 1.0, 1.0, 1.0);
+template<class DType>
+DType _clip(DType v, DType min_v, DType max_v)
+{
+    if (v < min_v)
+    {
+        v = min_v;
+    }
+    else if (v > max_v)
+    {
+        v = max_v;
+    }
+
+    return v;
+}
+
+
+
+MotorControl::MotorControl()
+{
+
 }
 
 MotorControl::~MotorControl()
@@ -16,57 +58,88 @@ MotorControl::~MotorControl()
 
 }
 
-/*
-    most inner control loop, call it as fast as possible (1kHz..2kHz)
-*/
-void MotorControl::callback_torque()
-{   
-    /*
-    //measure current
-    float current  = adc_read()/r;
 
-    //convert desired torque to current (T = I*Kt = I/Kv) 
-    float error = this->torque*Kv - current;
-    
-    //PI controller
-    error_sum   = error_sum + error*dt;
-
-    u = kp*error + ki*error_sum;
-
-    //apply voltage
-    this->motor->set_torque(u, 0, this->encoder->read_angle());
-    */
-
-    /*
-    //measure current
-    int32_t current = adc_read()/r;
-
-    //convert desired torque to current (T = I*Kt = I/Kv) 
-    int32_t error   = this->torque*Kv - current
-    
-    //PI controller
-    error_sum       = error_sum + error*dt;
-    int32_t u       = kp*error + ki*error_sum;
-
-    //apply voltage
-    this->motor->set_torque(u, 0, this->encoder->read_angle());
-    */
-}   
-
-/*
-    state space controller loop, call it in aprox. 200Hz
-*/
-void MotorControl::callback(int32_t dt_us)
+void MotorControl::init()
 {
-    this->encoder->update(dt_us);
+    this->angle             = 0;
+    this->angular_velocity  = 0;
+    this->motor_current     = 0;
+    this->required_current  = 0;
+    this->required_position = 0;
 
-    int32_t position    = this->encoder->position;
-    int32_t velocity    = this->encoder->angular_velocity;
+    adc_init();
 
-    //int32_t velocity_req = 4096;
-    //this->torque = this->lqr_velocity.step(velocity_req, velocity);
 
-    float position_req = 90;
+    motor.init();
+    motor.hold();
 
-    this->torque = MOTOR_CONTROL_MAX*this->lqr_position.step(position_req*DEG_TO_RAD, position*BID_TO_RAD, velocity*BID_TO_RAD);
+    i2c.init();
+    encoder.init(&i2c);
+
+    torque_pid.init((float)0.3*16384, (float)100.0*16384, (float)0.0*16384, 0, MOTOR_CONTROL_MAX, 1);
+    
+
+    k0 = (float)0.00627266;
+    k1 = (float)0.84664735;
+    ki = (float)31.6227766; 
+
+    //k0 = (float)0.00250249;
+    //k1 = (float)0.26009823;
+    //ki = (float)4.7; 
+    
+
+    error_sum = 0.0;  
 }
+
+     
+void MotorControl::callback_torque()
+{    
+    encoder.update(1000); 
+    //rotor angle (0..4096)
+    this->angle             = encoder.read_angle();
+ 
+    this->angle_position    = -encoder.position;
+    this->angular_velocity  = -encoder.angular_velocity;
+    
+    //i     = u/r = (adc*3.3/4096)/0.33
+    //uref  = 3.3V, R = 0.33ohm, result in mA
+    int32_t adc         = adc_read(ADC_Channel_4);
+    this->motor_current = (adc*10000)/4096; 
+
+    int32_t u = _abs(torque_pid.step(_abs(this->required_current) - this->motor_current));
+
+    int32_t phase = SINE_TABLE_SIZE/4;
+ 
+    if (this->required_current < 0) 
+    { 
+        phase = -phase; 
+    }
+
+    motor.set_torque(u, phase, this->angle); 
+}
+
+void MotorControl::callback()
+{ 
+    //integral action 
+    float error = this->required_position - this->angle_position;
+          error = error*(float)(2.0*3.141592654/4096.0)*(float)(1.0/500.0);
+
+    error_sum   = error_sum + error;  
+  
+
+    //read motor state : angular velocity, and rotor angle
+    //convert to rad/s and rad
+    float x0 = this->angular_velocity*(float)(2.0*3.141592654/4096.0);
+    float x1 = this->angle_position*(float)(2.0*3.141592654/4096.0);
+  
+    //LQR controller with integral action
+    float u     =  -x0*k0 - x1*k1 + ki*error_sum;
+    float u_sat = _clip(u, (float)-1.0, (float)1.0);
+
+    //antiwindup
+    float aw = u - u_sat;
+    error_sum-= aw*(float)(1.0/500.0);
+
+    //u is in amps, convert to mA
+    this->required_current = 1000*u_sat;
+}   
