@@ -159,7 +159,9 @@ void motor_identification(Terminal &terminal, MotorControl &motor_control)
   terminal << "\n\n";
 }
 
+//const int32_t  required[] = {0, 1024, 0, -1024, 0, 2048, 0, -2048, 0, 4096, 0, -4096, 0, 4*4096, 0, -4*4096};
 
+const int32_t  required[] = {0, 1024, 0, -1024, 0, 5*4096, 0, -5*4096};
  
 int main(void)
 {
@@ -192,9 +194,8 @@ int main(void)
 
     //motor_identification( terminal, motor_control);
 
-    uint32_t  required_idx = 0;
-    int32_t   required[] = {0, 1024, 2048, 3072, 0, -1024, -2048, -3072}; //, 0, -90, -180, -270};
- 
+    
+
     while(1)
     {
       if ((g_ms_time%1000) < 50)
@@ -206,13 +207,9 @@ int main(void)
         led_0 = 0;
       }
 
-      if ((g_ms_time%400) == 0)
-      {
-        motor_control.required_position = required[required_idx];
-        required_idx = (required_idx + 1)%8;
-      }
-     
-       
+      uint32_t required_idx = (g_ms_time/800)%8;
+      
+      motor_control.required_position = required[required_idx];
 
       if ((g_ms_time%100) == 0)
       {
