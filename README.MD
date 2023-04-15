@@ -52,12 +52,12 @@ basic tranformations tests :
 
 # fast running transformations in fixed point
 
-## key properties
+## key features
 
 - sine and cosine is precomputed, 1024 values arrays
 - angle 2pi == 1024 (or 0) into tables
 - theta ranges from <0, 1023>
-- SINE_TABLE_MAX is represents "one", 1023 in tables
+- SINE_TABLE_MAX  represents "one", 1023 in tables
 - square root of 3 is also precomputed, asn fraction of x/1024 
 - all divisions are by power of 2 - to avoid slow division
 - this can easily run few kHz on cortex m0 (48MHz ARM)
