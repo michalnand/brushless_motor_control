@@ -19,6 +19,10 @@
 - 3D priting parts (jig for magnet centering)
 - IMPORTANT - in schematic is wrong MP6540HA, correct is MP6540H (pwm only driver with enable)
 
+- MCU   : stm32f051, arm cortex m0, 48MHz
+- 3phase driver : MP6540H (DONT MP6540HA), 5A, 50V
+- encoder : AS5600, 12bit, i2c
+
 ![board](hardware/imgs/schem.png)
 ![board](hardware/imgs/board.png)
 
