@@ -5,6 +5,28 @@
 ![board](doc/images/top_board.jpg)
 ![board](doc/images/bottom_board.jpg)
 
+# repository
+
+## utils : [utils](utils)
+- testing utils and simulations
+- transformation tests : transform_test.py
+- PI current synthetis : pi_torque.ipynb
+- LQR synthetis : lqr_design.ipynb
+
+
+## hardware : [hardware](hardware)
+- eagle files
+- 3D priting parts (jig for magnet centering)
+- IMPORTANT - in schematic is wrong MP6540HA, correct is MP6540H (pwm only driver with enable)
+
+![board](hardware/imgs/schem.png)
+![board](hardware/imgs/board.png)
+
+
+## firmware : [firmware](firmware)
+- main code for stm32f051
+
+
 # FOC block diagrams
 
 ![inner_loop](doc/diagrams/motor_control-inner_loop.png)
