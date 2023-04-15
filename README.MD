@@ -15,7 +15,7 @@
 # transformation tests
 
 basic tranformations tests :
-- clarke - parke - pwm scaling
+- clarke - park - pwm scaling
 - see [transform_test.py](utils/transform_test.py)
 
 
