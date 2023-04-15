@@ -22,7 +22,7 @@ basic tranformations tests :
 ![transformations](utils/transformations.png)
 
 
-# fast running tranformations in fixed point
+# fast running transformations in fixed point
 
 ## key properties
 
