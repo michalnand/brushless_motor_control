@@ -39,8 +39,8 @@ class LQR
                 
             //LQR controll law
             //u = -self.k@x + self.ki@error_sum_new
-            tmm::mmt<inputs_count, system_order, 1, float>(u, k, x, nullptr,   -1, 0);
-            tmm::mmt<inputs_count, system_order, 1, float>(u, ki, x, error_sum, 1, 1);
+            tmm::mm<inputs_count, system_order, 1, float>(u, k, x, nullptr,   -1, 0);
+            tmm::mm<inputs_count, system_order, 1, float>(u, ki, x, error_sum, 1, 1);
 
             //antiwindup
             //error_sum-= (u - u_sat)*dt

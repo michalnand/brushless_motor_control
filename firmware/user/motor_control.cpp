@@ -78,15 +78,9 @@ void MotorControl::init()
 
     torque_pid.init((float)0.3*16384, (float)100.0*16384, (float)0.0*16384, 0, MOTOR_CONTROL_MAX, 1);
     
-
     k0 = (float)0.00627266;
     k1 = (float)0.84664735;
     ki = (float)31.6227766; 
-
-    //k0 = (float)0.00250249;
-    //k1 = (float)0.26009823;
-    //ki = (float)4.7; 
-    
 
     error_sum = 0.0;  
 }

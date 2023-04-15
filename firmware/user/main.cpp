@@ -162,6 +162,7 @@ void motor_identification(Terminal &terminal, MotorControl &motor_control)
 //const int32_t  required[] = {0, 1024, 0, -1024, 0, 2048, 0, -2048, 0, 4096, 0, -4096, 0, 4*4096, 0, -4*4096};
 
 const int32_t  required[] = {0, 1024, 0, -1024, 0, 5*4096, 0, -5*4096};
+
  
 int main(void)
 {
@@ -195,7 +196,8 @@ int main(void)
     //motor_identification( terminal, motor_control);
 
     
-
+    g_ms_time = 0;
+    
     while(1)
     {
       if ((g_ms_time%1000) < 50)
