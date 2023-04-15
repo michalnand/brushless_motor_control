@@ -25,6 +25,8 @@
 
 ## firmware : [firmware](firmware)
 - main code for stm32f051
+- core is in **user** folder
+- see motor.cpp and motor_control.cpp to understand all details
 
 
 # FOC block diagrams
