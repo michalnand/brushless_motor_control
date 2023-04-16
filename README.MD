@@ -154,7 +154,7 @@ int32_t PID::step(int32_t error)
 
 
 
-# LQR torque controller
+# LQR position controller
 
 see [lqr_design.ipynb](utils/lqr_design.ipynb)
 
