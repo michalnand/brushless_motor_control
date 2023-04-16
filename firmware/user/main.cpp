@@ -70,6 +70,7 @@ void timers_init()
     TIM_TimeBaseInitTypeDef     TIM_TimeBaseStructure;
     NVIC_InitTypeDef            NVIC_InitStructure;
 
+    //set timer 16 for 1kHz, and highest priority
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM16, ENABLE);
 
     TIM_TimeBaseStructure.TIM_Prescaler         = 0;
@@ -88,14 +89,13 @@ void timers_init()
     NVIC_Init(&NVIC_InitStructure);
 
 
-
+    //set timer 17 for 500Hz, and lower priority
     RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM17, ENABLE);
 
     TIM_TimeBaseStructure.TIM_Prescaler         = 0;
     TIM_TimeBaseStructure.TIM_CounterMode       = TIM_CounterMode_Up;
 
     TIM_TimeBaseStructure.TIM_Period            = 48000 - 1; //500Hz, 24MHz clock / 500 - 1
-    //TIM_TimeBaseStructure.TIM_Period            = 96000 - 1; //250Hz, 24MHz clock / 250 - 1
     TIM_TimeBaseStructure.TIM_ClockDivision     = 0;
     TIM_TimeBaseStructure.TIM_RepetitionCounter = 0;
 
