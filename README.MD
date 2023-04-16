@@ -157,6 +157,11 @@ int32_t PID::step(int32_t error)
 
 see [lqr_design.ipynb](utils/lqr_design.ipynb)
 
+## whole controller structure
+
+![lqr_structure](doc/diagrams/motor_control-lqr.png)
+
+
 ## closed loop response + disturbance rejection
 
 ![closed_loop_response](utils/closed_loop_response.png)
