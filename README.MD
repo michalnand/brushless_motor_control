@@ -49,6 +49,7 @@ basic tranformations tests :
 
 ![transformations](utils/transformations.png)
 
+![currents](doc/images/currents.jpg)
 
 # fast running transformations in fixed point
 
