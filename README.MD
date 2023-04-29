@@ -1,5 +1,7 @@
 # stm32 FOC brushless motor controller
 
+![board](doc/images/brushless_motor.gif)
+
 ![board](doc/images/spinning.jpg)
 
 ![board](doc/images/top_board.jpg)
@@ -12,6 +14,7 @@
 - transformation tests : transform_test.py
 - PI current synthetis : pi_torque.ipynb
 - LQR synthetis : lqr_design.ipynb
+- requires [LibsControll](https://github.com/michalnand/libs_control)
 
 
 ## hardware : [hardware](hardware)
