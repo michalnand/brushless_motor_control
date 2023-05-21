@@ -35,7 +35,7 @@ class AS5600
             360degrees      = 4096   bid
             100degrees/s    = 1137.7 bid/s
         */
-        void    update(int32_t dt_ms = 1);
+        void    update(int32_t dt_us = 10000);
 
         void    set_zero();
 
@@ -45,7 +45,7 @@ class AS5600
         int32_t position;
         int32_t angular_velocity;
 
-    public:
+    private:
         I2C_Interface *i2c;
 
         int32_t position_prev;

@@ -161,7 +161,7 @@ void motor_identification(Terminal &terminal, MotorControl &motor_control)
 
 //const int32_t  required[] = {0, 1024, 0, -1024, 0, 2048, 0, -2048, 0, 4096, 0, -4096, 0, 4*4096, 0, -4*4096};
 
-const int32_t  required[] = {0, 1024, 0, -1024, 0, 5*4096, 0, -5*4096};
+const int32_t  required[] = {0, 1024, 0, -1024, 0, 2048, 0, -2048, 0, 4096, 0, -4096, 0, 2*4096, 0, -2*4096};
 
  
 int main(void)
@@ -182,7 +182,7 @@ int main(void)
     terminal.init(115200, USART1);
     terminal << "terminal init done\n";
 
-
+    //encoder_test(terminal);
 
     
     MotorControl motor_control;
@@ -195,8 +195,9 @@ int main(void)
 
     //motor_identification( terminal, motor_control);
 
-    
+  
     g_ms_time = 0;
+    
     
     while(1)
     {
@@ -209,7 +210,7 @@ int main(void)
         led_0 = 0;
       }
 
-      uint32_t required_idx = (g_ms_time/800)%8;
+      uint32_t required_idx = (g_ms_time/1000)%16;
       
       motor_control.required_position = required[required_idx];
 
@@ -225,48 +226,9 @@ int main(void)
       }
     }
     
-    /*
-    int32_t required[] = {0, 200, 0,  -200};
 
-    while (1) 
-    {
-      uint32_t idx = (steps/100000)%4;
-      
-      motor_control.required_current = required[idx];
-      
-      if (steps%5000 == 0)  
-      {
-        led_0 = 1;
-        terminal << "current = " << motor_control.required_current << " " << motor_control.motor_current << "\n";
-        led_0 = 0;
-      }  
-
-      steps++;
-    }
-    */
-    
-    /*
-    uint32_t steps = 0;
-    int32_t required[] = {0, 2048, 0,  -2048};
-    
-    while (1) 
-    {
-      uint32_t idx = (steps/20000)%4;
-      
-      motor_control.required_position = required[idx];
-      
-      if (steps%10000 == 0) 
-      {
-        terminal << "current = " << motor_control.required_current << " " << motor_control.motor_current << "\n";
-        terminal << "angle   = " << (motor_control.required_position*360)/4096 << " " << (motor_control.angle_position*360)/4096 << "\n";
-        terminal << "required_current = " << motor_control.required_current << "\n";
-        terminal << "\n\n";
-      } 
-
-      steps++;
-    }
-    */
-    
+  
+  
 
     return 0;
 } 

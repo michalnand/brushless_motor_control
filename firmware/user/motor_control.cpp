@@ -88,9 +88,9 @@ void MotorControl::init()
      
 void MotorControl::callback_torque()
 {    
-    encoder.update(1000); 
+    encoder.update(1);  
     //rotor angle (0..4096)
-    this->angle             = encoder.read_angle();
+    this->angle             = encoder.angle;
  
     this->angle_position    = -encoder.position;
     this->angular_velocity  = -encoder.angular_velocity;

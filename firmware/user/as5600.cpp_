@@ -39,7 +39,7 @@ int AS5600::init(I2C_Interface *i2c_)
     this->i2c           = i2c_;
     this->angle         = 0; 
 
-    //check if device responds using ACK, since sensor doesn't have WHO_AM_I ID
+    //check if device responds using ACK
     unsigned char ack = i2c->check(I2C_ADDRESS);
     if (ack == 0)
     {
@@ -81,63 +81,37 @@ int32_t AS5600::read_angle()
 }
 
 
-void AS5600::update(int32_t dt_ms)
+void AS5600::update(int32_t dt_us)
 {
-    //int16_t value = i2c->read_reg_16bit(I2C_ADDRESS, RAW_ANGLE_H_ADR)&0x0fff;
-    int16_t value = i2c->read_reg_16bit(I2C_ADDRESS, ANGLE_H_ADR)&0x0fff;
-
-    this->angle = value; 
+    int16_t value = i2c->read_reg_16bit(I2C_ADDRESS, RAW_ANGLE_H_ADR)&0x0fff;
  
     this->position_prev = this->position;
- 
+
     //  whole rotation CW?
     //  less than half a circle
     if ((this->prev_value > 2048) && ( value < (this->prev_value - 2048)))
     {
-        position = this->position + 4096 - this->prev_value + value;
+        this->position = this->position + 4096 - this->prev_value + value;
     } 
   
     //  whole rotation CCW?
     //  less than half a circle
     else if ((value > 2048) && ( this->prev_value < (value - 2048)))
     {
-        position = this->position - 4096 - this->prev_value + value;
+        this->position = this->position - 4096 - this->prev_value + value;
     }
     else 
     {
-        position = this->position - this->prev_value + value;
+        this->position = this->position - this->prev_value + value;
     }
 
-    this->position = (3*this->position + position)/4;
- 
      
     this->prev_value = value;
 
-    this->angular_velocity = ((this->position - this->position_prev)*1000)/dt_ms;
+    this->angular_velocity = ((this->position - this->position_prev)*1000000)/dt_us;
 }
 
 
-/*
-void AS5600::update(int32_t dt_us)
-{
-    //0 ... 4095
-    int16_t angle   = i2c->read_reg_16bit(I2C_ADDRESS, RAW_ANGLE_H_ADR)&0x0fff;
-    int16_t dangle  = angle - this->prev_value;
-
-    //  assumption is that there is no more than 180° rotation
-    //  between two consecutive measurements.
-    //  => at least two measurements per rotation (preferred 4).
-    if (deltaA >  2048) deltaA -= 4096;
-    if (deltaA < -2048) deltaA += 4096;
-    float    speed   = (deltaA * 1e6) / deltaT;
-
-    //  remember last time & angle
-    _lastMeasurement = now;
-    _lastAngle       = angle;
-
-   
-}
-*/
 
 
 void AS5600::set_zero()

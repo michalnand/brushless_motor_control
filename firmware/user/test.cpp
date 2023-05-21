@@ -2,6 +2,10 @@
 #include <gonio.h>
 #include <gpio.h>
 #include <adc.h>
+#include <i2c.h>
+#include <as5600.h>
+#include <terminal.h>
+
 
 void _delay_loops(uint32_t loops)
 {
@@ -219,4 +223,35 @@ void test_torque_encoder(Motor &motor, AS5600 &encoder)
 
       steps++;
     }
+}
+
+
+
+void encoder_test(Terminal &terminal)
+{
+  Gpio<TGPIOB, 0, GPIO_MODE_OUT> led_0;
+
+  led_0 = 1;
+  
+  TI2C<TGPIOB, 7, 6>  i2c;
+  AS5600              encoder;
+  
+  i2c.init();
+  encoder.init(&i2c);
+
+  uint32_t cnt = 0;
+
+  while (1)
+  {
+    led_0 = 1;
+    encoder.update(1000);
+    led_0 = 0;
+
+    if ((cnt%100) == 0)
+    {
+      terminal << ">>> " <<  encoder.angle << " " << encoder.position << " " << encoder.position_prev << " " << encoder.angular_velocity << "\n";
+    }
+
+    cnt++;
+  }
 }
