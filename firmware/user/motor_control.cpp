@@ -76,7 +76,9 @@ void MotorControl::init()
     i2c.init();
     encoder.init(&i2c);
 
-    torque_pid.init((float)0.3*16384, (float)100.0*16384, (float)0.0*16384, 0, MOTOR_CONTROL_MAX, 1);
+    //torque_pid.init((float)0.3*16384, (float)100.0*16384, (float)0.0*16384, 0, MOTOR_CONTROL_MAX, 1);
+
+    torque_pid.init((float)0.3*16384, (float)50.0*16384, (float)0.0*16384, 0, MOTOR_CONTROL_MAX, 1);
     
     k0 = (float)0.00627266;
     k1 = (float)0.84664735;

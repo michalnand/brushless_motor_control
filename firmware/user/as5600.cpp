@@ -108,14 +108,13 @@ void AS5600::update(int32_t dt_ms)
         position = this->position - this->prev_value + value;
     }
 
-    this->position = (3*this->position + position)/4;
+    this->position =  position; 
  
      
     this->prev_value = value;
 
-    this->angular_velocity = ((this->position - this->position_prev)*1000)/dt_ms;
+    this->angular_velocity = ((this->position - this->position_prev)*1000)/dt_ms; 
 }
-
 
 /*
 void AS5600::update(int32_t dt_us)

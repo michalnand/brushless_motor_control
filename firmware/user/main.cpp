@@ -174,6 +174,7 @@ int main(void)
   
     Gpio<TGPIOB, 0, GPIO_MODE_OUT> led_0;
     Gpio<TGPIOB, 1, GPIO_MODE_OUT> led_1;
+    Gpio<TGPIOA, 0, GPIO_MODE_IN_PULLUP> key_0;
 
     led_0 = 1;
 
@@ -197,7 +198,8 @@ int main(void)
 
   
     g_ms_time = 0;
-    
+
+    unsigned int state = 0;
     
     while(1)
     {
@@ -210,10 +212,36 @@ int main(void)
         led_0 = 0;
       }
 
-      uint32_t required_idx = (g_ms_time/1000)%16;
+    
       
-      motor_control.required_position = required[required_idx];
+      if ((g_ms_time%10) == 0)
+      {
+        if ((state == 0) && (key_0 == 0))
+          state = 1;
+        else if ((state == 1) && (key_0 == 1))
+          state = 2;
+        else if ((state == 2) && (key_0 == 0))
+          state = 3;
+        else if ((state == 3) && (key_0 == 1))
+          state = 0;
+      }
 
+      if (state == 0)
+      {
+        led_1 = 0;
+
+        motor_control.required_position = 1024;
+      }
+
+
+      if (state == 2)
+      {
+        led_1 = 1;
+        
+        uint32_t required_idx = (g_ms_time/1000)%16;
+        motor_control.required_position = required[required_idx];
+      } 
+      
       if ((g_ms_time%100) == 0)
       {
         int32_t angle_deg = (motor_control.angle_position*360)/4096;
