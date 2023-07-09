@@ -84,7 +84,7 @@ void MotorControl::init()
     k1 = (float)0.84664735;
     ki = (float)31.6227766; 
 
-    integral_action = 0.0;  
+    error_sum = 0.0;  
 }
 
      
@@ -111,10 +111,7 @@ void MotorControl::callback_torque()
         phase = -phase; 
     }
 
-    //motor.set_torque(u, phase, this->angle); 
-
-
-    motor.set_torque(_abs(this->required_current), phase, this->angle); 
+    motor.set_torque(u, phase, this->angle); 
 }
 
 void MotorControl::callback()
@@ -129,19 +126,18 @@ void MotorControl::callback()
           error = error*(float)(2.0*3.141592654/4096.0);
 
     //integral action
-    float integral_action_new = integral_action + ki*error*(float)(1.0/500.0);
+    error_sum = error_sum + error*(float)(1.0/500.0);
 
     //antiwindup
     //integral_action = _clip(integral_action, (float)-1.0, (float)1.0);
     
     //LQR controller with integral action
-    float u     =  -x0*k0 - x1*k1 + integral_action;
+    float u     =  -x0*k0 - x1*k1 + ki*error_sum;
     float u_sat = _clip(u, (float)-1.0, (float)1.0);
 
-    if (_abs(u - u_sat) == 0.0)
-    {
-        integral_action = integral_action_new;
-    }
+    //antiwindup
+    float aw = u - u_sat;
+    error_sum-= aw*(float)(1.0/500.0);
 
     //u is in amps, convert to mA
     this->required_current = 1000*u_sat;

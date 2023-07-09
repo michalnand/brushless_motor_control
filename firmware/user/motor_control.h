@@ -45,7 +45,7 @@ class MotorControl
     
     public:
         float k0, k1, ki;
-        float error_sum; 
+        float integral_action; 
         
     public:
         int32_t angle, angle_position, angular_velocity;

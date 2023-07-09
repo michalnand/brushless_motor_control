@@ -201,6 +201,7 @@ int main(void)
 
     unsigned int state = 0;
     
+    float required_position = 0.0;
     while(1)
     {
       if ((g_ms_time%1000) < 50)
@@ -225,31 +226,36 @@ int main(void)
         else if ((state == 3) && (key_0 == 1))
           state = 0;
       }
-
+      
       if (state == 0)
       {
         led_1 = 0;
 
-        motor_control.required_position = 1024;
+        motor_control.required_position = 0;
       }
 
 
       if (state == 2)
       {
-        led_1 = 1;
+        led_1 = 1; 
         
         uint32_t required_idx = (g_ms_time/1000)%16;
         motor_control.required_position = required[required_idx];
+
+        
+        //motor_control.required_position = motor_control.angle_position + 20.0;
+        
       } 
       
       if ((g_ms_time%100) == 0)
       {
         int32_t angle_deg = (motor_control.angle_position*360)/4096;
         int32_t speed_rpm = (motor_control.angular_velocity*60)/4096;
+        
         terminal << "current " << motor_control.motor_current << " mA\n";
         terminal << "angle " << angle_deg << " deg\n";
         terminal << "speed " << speed_rpm << " rpm\n";
-        terminal << "error_sum " << motor_control.error_sum << " deg\n";
+        //terminal << "error_sum " << motor_control.error_sum << " deg\n";
         terminal << "\n\n";
       }
     }
